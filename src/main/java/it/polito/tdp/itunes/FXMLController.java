@@ -5,7 +5,11 @@
 package it.polito.tdp.itunes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+
+import it.polito.tdp.itunes.model.Album;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,7 +20,7 @@ import javafx.scene.control.TextField;
 
 public class FXMLController {
 
-	private Model model;
+	private Model model; 
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -34,7 +38,7 @@ public class FXMLController {
     private Button btnSet; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtDurata"
     private TextField txtDurata; // Value injected by FXMLLoader
@@ -47,16 +51,70 @@ public class FXMLController {
 
     @FXML
     void doComponente(ActionEvent event) {
+    	Album a1= cmbA1.getValue();
     	
+    	if(a1==null) {
+    		txtResult.setText("Seleziona un valore dalla tendina");
+    		return;
+    	}
+    	
+    	txtResult.setText(this.model.getAnalisiComponente(a1));
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	String durataS= txtDurata.getText();
+    	
+    	if(durataS.equals("")) {
+    		txtResult.setText("Valore 'd' obbligatorio");
+    		return;
+    	}
+    	Double duration=0.0;
+    	
+    	try {
+			duration= Double.parseDouble(durataS);
+		} catch (Exception e) {
+			txtResult.setText("La durata deve essere un valore numerico");
+		}
+    	txtResult.setText(this.model.creaGrafo(duration));
+    	
+    	List<Album> album= this.model.getAlbumsGraph();
+    	
+    	cmbA1.getItems().setAll(album); // cmbA1.getItems().clear; cmbA1.getItems().addAll(album);
     	
     }
 
     @FXML
     void doEstraiSet(ActionEvent event) {
+		txtResult.setText("");
+
+    	String dTots= txtX.getText();
+    	
+    	Album a1= cmbA1.getValue();
+    	
+    	if(a1==null) {
+    		txtResult.setText("Seleziona un valore dalla tendina");
+    		return;
+    	}
+    	
+    	Double dTot=0.0;
+    	
+    	try {
+			dTot= Double.parseDouble(dTots);
+		} catch (Exception e) {
+			txtResult.setText("La durata deve essere un valore numerico");
+		}
+    	
+    	Set<Album> risultato= this.model.getSetAlbum(a1, dTot);
+    	
+    	if(risultato==null) {
+    		txtResult.setText("La durata inserita deve essere maggiore della durata dell'album scelto nella tendina");
+    		return;
+    	}
+    	
+    	for(Album a: risultato) {
+    		txtResult.appendText(""+a+"\n");
+    	}
 
     }
 
